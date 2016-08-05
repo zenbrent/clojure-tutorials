@@ -14,15 +14,26 @@
   []
   (.reload (.-location js/window)))
 
-(defn stripe [text bgc]
+(defn stripe [el text bgc]
   (let [st #js {:backgroundColor bgc}]
-    (dom/li #js {:style st} text)))
+    (el #js {:style st} text)))
+
+;; Nice because it has the style info in the middle, more closely mimicking actual elements.
+(defn stripe2 [el bgc text]
+  (let [st #js {:backgroundColor bgc}]
+    (el #js {:style st} text)))
 
 (om/root
   (fn [data owner]
     (om/component
       (apply dom/ul #js {:className "animals"} ; #js is a reader macro for making js objects or arrays -- it is shallow.
-             (map stripe (:list data) (cycle ["#fbf" "#fcf"])))))
+             (map (fn [text] (dom/li nil text)) (:list data))
+             (map (partial dom/li nil) (:list data))
+             (map #(dom/li nil %) (:list data))   
+             (map (fn [text color] (stripe2 dom/li color text)) (:list data) (cycle ["#abc" "#cba"]))
+             (map (partial stripe dom/li) (:list data) (cycle ["#abc" "#cba"]))
+             (map #(stripe2 dom/li %2 %1) (:list data) (cycle ["#abc" "#cba"]))
+             )))
   app-state
   {:target (. js/document (getElementById "app-0"))})
 
