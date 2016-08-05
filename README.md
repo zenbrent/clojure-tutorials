@@ -10,7 +10,7 @@ FIXME: Write a paragraph about the library/project and highlight its goals.
 
 To get an interactive development environment run:
 
-    lein figwheel
+    rlwrap lein figwheel
 
 and open your browser at [localhost:3449](http://localhost:3449/).
 This will auto compile and send all changes to the browser without the
@@ -20,6 +20,11 @@ get a Browser Connected REPL. An easy way to try it is:
     (js/alert "Am I connected?")
 
 and you should see an alert in the browser window.
+
+    (in-ns 'om-tut.core)
+    (swap! app-state assoc :text "sups, yo")
+
+will update the text on the page.
 
 To clean all compiled files:
 
