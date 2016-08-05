@@ -2,6 +2,9 @@
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]))
 
+;; Current position:
+;; https://github.com/omcljs/om/wiki/Basic-Tutorial#enhancing-your-first-om-component
+
 (enable-console-print!)
 
 ;; define your app data so that it doesn't get over-written on reload
@@ -29,7 +32,9 @@
   (reify
     om/IRender
     (render [this]
-      (dom/li nil (display-name contact)))))
+      (dom/li #js {:style #js {:backgroundColor "red"}}
+              (dom/span nil (display-name contact))
+              (dom/button nil "Delete")))))
 
 (defn contacts-view [data owner]
   (reify
