@@ -44,11 +44,13 @@
         (>= c 2) (assoc :middle middle))))) 
 
 (defn add-contact [data owner]
-  (let [new-contact (-> (om/get-node owner "new-contact")
+  (let [new-contact-el (om/get-node owner "new-contact")
+        new-contact (-> new-contact-el
                         .-value
                         parse-contact)]
     (when new-contact
-      (om/transact! data :contacts #(conj % new-contact)))))
+      (om/transact! data :contacts #(conj % new-contact))
+      (set! (.-value new-contact-el)))))
 
 (defn contact-view [contact owner]
   (reify
