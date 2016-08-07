@@ -44,13 +44,12 @@
         (>= c 2) (assoc :middle middle))))) 
 
 (defn add-contact [data owner]
-  (let [new-contact-el (om/get-node owner "new-contact")
-        new-contact (-> new-contact-el
+  (let [new-contact (-> (om/get-node owner "new-contact")
                         .-value
                         parse-contact)]
     (when new-contact
       (om/transact! data :contacts #(conj % new-contact))
-      (set! (.-value new-contact-el)))))
+      (om/set-state! owner :text ""))))
 
 (defn contact-view [contact owner]
   (reify
@@ -60,11 +59,23 @@
               (dom/span nil (display-name contact))
               (dom/button #js {:onClick (fn [e] (put! delete @contact))} "Delete")))))
 
+
+;; If you are familiar with React you'll notice that this is a little bit clunkier than
+;; in React, here we have to make sure to set the state of the text field even if we don't
+;; want it to change. This is a side effect of React's internals clashing a bit with Om's
+;; optimization of always rendering on requestAnimationFrame.
+(defn handle-change [e owner {:keys [text]}]
+  (let [value (.. e -target -value)]
+    (if-not (re-find #"[0-9]" value)
+      (om/set-state! owner :text value)
+      (om/set-state! owner :text text))))
+
 (defn contacts-view [data owner]
   (reify
     om/IInitState
     (init-state [_]
-      {:delete (chan)})
+      {:delete (chan)
+       :text ""})
     om/IWillMount
     (will-mount [_]
       (let [delete (om/get-state owner :delete)]
@@ -83,7 +94,8 @@
                       (om/build-all contact-view (:contacts data)
                                     {:init-state state}))
                (dom/div nil
-                        (dom/input #js {:type "text" :ref "new-contact"})
+                        (dom/input #js {:type "text" :ref "new-contact" :value (:text state)
+                                        :onChange #(handle-change % owner state)})
                         (dom/button #js {:onClick #(add-contact data owner)} "Add contact"))))))
 
 
