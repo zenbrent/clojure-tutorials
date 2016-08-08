@@ -6,16 +6,16 @@
 
   :jvm-opts ^:replace ["-Xmx1g" "-server"]
 
-  :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-3195"]
+  :dependencies [[org.clojure/clojure "1.8.0"]
+                 [org.clojure/clojurescript "1.9.89"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [org.omcljs/om "0.8.8"]
-                 [ring "1.3.2"]
-                 [compojure "1.3.1"]
+                 [ring "1.5.0"]
+                 [compojure "1.5.1"]
                  [com.datomic/datomic-free "0.9.5130" :exclusions [joda-time]]]
 
-  :plugins [[lein-cljsbuild "1.0.5"]
-            [lein-figwheel "0.2.9"]]
+  :plugins [[lein-cljsbuild "1.1.3"]
+            [lein-figwheel "0.5.4-7"]]
 
 
   :source-paths ["src/clj" "src/cljs"]
