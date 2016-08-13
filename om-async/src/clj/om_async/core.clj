@@ -39,12 +39,11 @@
   (let [id    (:class/id params)
         db    (d/db conn)
         title (:class/title params)
-        eid   (ffirst ;; TODO: Refactor this to just call generate-response
-                (d/q '[:find ?class
-                       :in $ ?id
-                       :where 
-                       [?class :class/id ?id]]
-                  db id))]
+        eid   (ffirst (d/q '[:find ?class
+                             :in $ ?id
+                             :where 
+                             [?class :class/id ?id]]
+                           db id))]
     (d/transact conn [[:db/add eid :class/title title]])
     (generate-response {:status :ok})))
 
