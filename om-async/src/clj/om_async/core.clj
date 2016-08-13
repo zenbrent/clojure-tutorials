@@ -1,7 +1,7 @@
 (ns om-async.core
   (:require [ring.util.response :refer [file-response]]
             [ring.adapter.jetty :refer [run-jetty]]
-            [compojure.core :refer [defroutes GET PUT]]
+            [compojure.core :refer [defroutes GET PUT POST]]
             [compojure.route :as route]
             [compojure.handler :as handler]
             [clojure.edn :as edn]
@@ -18,10 +18,28 @@
    :headers {"Content-Type" "application/edn"}
    :body (pr-str data)})
 
-(defn update-class [id params]
-  (let [db    (d/db conn)
+(defn get-classes [db]
+  (->> (d/q '[:find ?class
+              :where
+              [?class :class/id]]
+            db)
+       (map #(d/touch (d/entity db (first %))))
+       vec))
+
+(defn init
+  "For getting the client's initial state."
+  []
+  (generate-response
+    {:classes {:url "/classes" :coll (get-classes (d/db conn))}}))
+
+(defn create-class [params]
+  {:status 500})
+
+(defn update-class [params]
+  (let [id    (:class/id params)
+        db    (d/db conn)
         title (:class/title params)
-        eid   (ffirst
+        eid   (ffirst ;; TODO: Refactor this to just call generate-response
                 (d/q '[:find ?class
                        :in $ ?id
                        :where 
@@ -31,21 +49,14 @@
     (generate-response {:status :ok})))
 
 (defn classes []
-  (let [db (d/db conn)
-        classes
-        (vec (map #(d/touch (d/entity db (first %)))
-               (d/q '[:find ?class
-                      :where
-                      [?class :class/id]]
-                 db)))]
-    (generate-response classes)))
+  (generate-response (get-classes (d/db conn))))
 
 (defroutes routes
   (GET "/" [] (index))
+  (GET "/init" [] (init))
   (GET "/classes" [] (classes))
-  (PUT "/class/:id/update"
-    {params :params edn-body :edn-body}
-    (update-class (:id params) edn-body))
+  (POST "/classes" {:params :edn-body} (create-class params))
+  (PUT "/classes" {:params :edn-body} (update-class params))
   (route/files "/" {:root "resources/public"}))
 
 (defn read-inputstream-edn [input]

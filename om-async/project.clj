@@ -9,6 +9,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.89"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                 [om-sync "0.1.1"]
                  [org.omcljs/om "0.8.8"]
                  [ring "1.5.0"]
                  [compojure "1.5.1"]
